@@ -12,7 +12,8 @@ class Config(object):
     DEBUG_TB_ENABLED = False  # Disable Debug toolbar
     DEBUG_TB_INTERCEPT_REDIRECTS = False
     CACHE_TYPE = 'simple'  # Can be "memcached", "redis", etc.
-
+    TWILIO_ACCOUNT_SID = os_env.get('TWILIO_ACCOUNT_SID', '')
+    TWILIO_AUTH_TOKEN = os_env.get('TWILIO_AUTH_TOKEN', '')
 
 class ProdConfig(Config):
     """Production configuration."""

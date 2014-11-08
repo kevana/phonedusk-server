@@ -6,10 +6,14 @@ import subprocess
 from flask.ext.script import Manager, Shell, Server
 from flask.ext.migrate import MigrateCommand
 
+import envvars
+
 from phonedusk.app import create_app
 from phonedusk.user.models import User
 from phonedusk.settings import DevConfig, ProdConfig
 from phonedusk.database import db
+
+envvars.load()
 
 if os.environ.get("PHONEDUSK_ENV") == 'prod':
     app = create_app(ProdConfig)
