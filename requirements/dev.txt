@@ -8,6 +8,3 @@ factory-boy==2.4.1
 
 # Management script
 Flask-Script
-
-# Environment variable setup
-envvars
