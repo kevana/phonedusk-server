@@ -96,7 +96,7 @@ def user_route_outgoing_call():
         url="https://phonedusk.herokuapp.com/api/call",
         method="POST",
         )
-    return Response(call.__repr__(), 200)
+    return call.__repr__()
 
 
 # Whitelist functions
