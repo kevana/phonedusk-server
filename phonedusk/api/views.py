@@ -67,14 +67,24 @@ def get_capability():
 def twilio_route_incoming_call():
     # Called by twilio at start of incoming voice call
     to_num = request.form['To']
-    user = User.query.filter(User.phone_numbers.contains(to_num)).first()
+    from_num = request.form['From']
 
+    #TODO: Fix this with SQLAlchemy
+    users = User.query.all()
+    users = filter(lambda user: to_num in [x.phone_number for x in user.phone_numbers], users)
+    if len(users) > 0:
+        user = users[0]
+        blacklist = user.blacklist_numbers
+        whitelist = user.whitelist_numbers
+        blacklist_matches = [x for x in blacklist if x.phone_number == from_num]
+    else:
+        user = None
     resp = twilio.twiml.Response()
-    if not user:
+    if not user or len(blacklist_matches) > 0:
         resp.reject()
     else:
         with resp.dial() as d:
-            d.client('tommy')
+            d.client(user.username)
     return str(resp)
 
 
