@@ -4,6 +4,7 @@ from flask.ext.login import login_required
 
 from functools import wraps
 import twilio.twiml
+from twilio import TwilioRestException
 from twilio.rest import TwilioRestClient
 from twilio.util import TwilioCapability
 
@@ -90,23 +91,26 @@ def twilio_route_incoming_call():
 
 @blueprint.route("/start_call", methods=['POST'])
 @requires_auth
-@returns_plaintext
 def user_route_outgoing_call():
     to_num = request.form['to']
     from_num = request.form['from']
     if not to_num or not from_num:
-        return 'Request missing to or from numbers'
+        return 'Request missing "to" or "from" parameters'
 
-    client = TwilioRestClient(current_app.config['TWILIO_ACCOUNT_SID'],
-                              current_app.config['TWILIO_AUTH_TOKEN'])
-    print(to_num, from_num)
-    call = client.calls.create(
-        to=to_num,
-        from_=from_num,
-        url="https://phonedusk.herokuapp.com/api/call",
-        method="POST",
-        )
-    return call.__repr__()
+    try:
+        client = TwilioRestClient(current_app.config['TWILIO_ACCOUNT_SID'],
+                                  current_app.config['TWILIO_AUTH_TOKEN'])
+        call = client.calls.create(
+            to=to_num,
+            from_=from_num,
+            url="https://phonedusk.herokuapp.com/api/call",
+            method="POST",
+            )
+    except twilio.TwilioRestException as e:
+        resp = jsonify(uri=e.uri,status=e.status,msg=e.msg,code=e.code,method=e.method)
+        resp.status_code = 400
+        return resp
+    return '', 204
 
 
 # Whitelist functions
