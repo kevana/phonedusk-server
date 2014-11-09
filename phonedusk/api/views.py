@@ -130,6 +130,24 @@ def create_whitelist_number():
     WhitelistPhoneNumber.create(user=user, phone_number=number)
 
 
+@blueprint.route("/whitelist/enable", methods=['POST'])
+@requires_auth
+def enable_whitelist():
+    user = g.user
+    user.enable_whitelist = True
+    user.save()
+    return Response('', 204)
+
+
+@blueprint.route("/whitelist/disable", methods=['POST'])
+@requires_auth
+def disable_whitelist():
+    user = g.user
+    user.enable_whitelist = False
+    user.save()
+    return Response('', 204)
+
+
 # Blacklist functions
 @blueprint.route("/blacklist", methods=['GET'])
 @requires_auth
@@ -161,7 +179,24 @@ def create_blacklist_number():
     BlacklistPhoneNumber.create(user=user, phone_number=number)
 
 
-# Turn them on and off
+@blueprint.route("/blacklist/enable", methods=['POST'])
+@requires_auth
+def enable_blacklist():
+    user = g.user
+    user.enable_blacklist = True
+    user.save()
+    return Response('', 204)
+
+
+@blueprint.route("/blacklist/disable", methods=['POST'])
+@requires_auth
+def disable_blacklist():
+    user = g.user
+    user.enable_blacklist = False
+    user.save()
+    return Response('', 204)
+
+
 
 @blueprint.route("/message", methods=['POST'])
 @returns_xml

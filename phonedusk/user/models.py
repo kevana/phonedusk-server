@@ -40,6 +40,9 @@ class User(UserMixin, SurrogatePK, Model):
     active = Column(db.Boolean(), default=False)
     is_admin = Column(db.Boolean(), default=False)
 
+    enable_whitelist = Column(db.Boolean(), default=False)
+    enable_blacklist = Column(db.Boolean(), default=False)
+
     phone_numbers = relationship("UserPhoneNumber", backref='user')
     blacklist_numbers = relationship("BlacklistPhoneNumber", backref='user')
     whitelist_numbers = relationship("WhitelistPhoneNumber", backref='user')
