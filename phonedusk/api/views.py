@@ -41,8 +41,18 @@ def returns_xml(f):
     return decorated_function
 
 
+def returns_plaintext(f):
+    '''Decorator to return a plaintext response.'''
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        r = f(*args, **kwargs)
+        return Response(r, content_type='text/plain; charset=utf-8')
+    return decorated_function
+
+
 @blueprint.route("/capability_token", methods=['GET'])
 @requires_auth
+@returns_plaintext
 def get_capability():
     user = g.user
     capability = TwilioCapability(current_app.config['TWILIO_ACCOUNT_SID'],
@@ -70,6 +80,7 @@ def twilio_route_incoming_call():
 
 @blueprint.route("/start_call", methods=['POST'])
 @requires_auth
+@returns_plaintext
 def user_route_outgoing_call():
     to_num = request.form['to']
     from_num = request.form['from']
