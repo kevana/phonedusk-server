@@ -95,6 +95,12 @@ def twilio_route_incoming_call():
             resp.reject('User not found')
     elif user.enable_blacklist and len(blacklist_matches) > 0:
         resp.reject('Blacklisted')
+    elif user.enable_whitelist:
+        if len(whitelist_matches) > 0:
+            with resp.dial() as d:
+                d.client(user.username)
+        else:
+            resp.reject('Not in whitelist')
     else:
         with resp.dial() as d:
             d.client(user.username)
