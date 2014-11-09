@@ -137,7 +137,7 @@ def get_whitelist():
 @requires_auth
 def delete_whitelist_number():
     user = g.user
-    data = request.get_json()
+    data = request.form
     number = data['phone_number']
     items = [num for num in user.whitelist_numbers
                    if num.phone_number == number]
@@ -151,7 +151,7 @@ def delete_whitelist_number():
 @requires_auth
 def create_whitelist_number():
     user = g.user
-    data = request.get_json()
+    data = request.form
     number = data['phone_number']
     WhitelistPhoneNumber.create(user=user, phone_number=number)
     return Response('', 204)
@@ -187,7 +187,7 @@ def get_blacklist():
 @requires_auth
 def delete_blacklist_number():
     user = g.user
-    data = request.get_json()
+    data = request.form
     number = data['phone_number']
     items = [num for num in user.blacklist_numbers
              if num.phone_number == number]
@@ -201,7 +201,7 @@ def delete_blacklist_number():
 @requires_auth
 def create_blacklist_number():
     user = g.user
-    data = request.get_json()
+    data = request.form
     number = data['phone_number']
     BlacklistPhoneNumber.create(user=user, phone_number=number)
     return Response('', 204)
@@ -236,7 +236,7 @@ def get_phone_numbers():
 @requires_auth
 def delete_phone_number():
     user = g.user
-    data = request.get_json()
+    data = request.form
     number = data['phone_number']
     items = [num for num in user.phone_numbers
                    if num.phone_number == number]
@@ -251,7 +251,7 @@ def delete_phone_number():
 def create_phone_number():
     # TODO: Register new numbers on Twilio?
     user = g.user
-    data = request.get_json()
+    data = request.form
     number = data['phone_number']
     UserPhoneNumber.create(user=user, phone_number=number)
     return Response('', 204)
