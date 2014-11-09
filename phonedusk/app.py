@@ -11,6 +11,7 @@ from phonedusk.extensions import (
     login_manager,
     migrate,
     debug_toolbar,
+    sentry,
 )
 from phonedusk import public, user, api
 
@@ -37,6 +38,8 @@ def register_extensions(app):
     login_manager.init_app(app)
     debug_toolbar.init_app(app)
     migrate.init_app(app, db)
+    if not app.debug:
+        sentry.init_app(app)
     return None
 
 

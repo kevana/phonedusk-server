@@ -14,6 +14,7 @@ class Config(object):
     CACHE_TYPE = 'simple'  # Can be "memcached", "redis", etc.
     TWILIO_ACCOUNT_SID = os_env.get('TWILIO_ACCOUNT_SID', '')
     TWILIO_AUTH_TOKEN = os_env.get('TWILIO_AUTH_TOKEN', '')
+    SENTRY_DSN = os_env.get('SENTRY_DSN', '')
 
 class ProdConfig(Config):
     """Production configuration."""
