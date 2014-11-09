@@ -11,7 +11,6 @@ from phonedusk.extensions import (
     login_manager,
     migrate,
     debug_toolbar,
-    twilio_capability,
 )
 from phonedusk import public, user, api
 
@@ -38,8 +37,6 @@ def register_extensions(app):
     login_manager.init_app(app)
     debug_toolbar.init_app(app)
     migrate.init_app(app, db)
-    twilio_capability.account_sid = app.config['TWILIO_ACCOUNT_SID']
-    twilio_capability.auth_token = app.config['TWILIO_AUTH_TOKEN']
     return None
 
 

@@ -20,6 +20,3 @@ cache = Cache()
 
 from flask.ext.debugtoolbar import DebugToolbarExtension
 debug_toolbar = DebugToolbarExtension()
-
-from twilio.util import TwilioCapability
-twilio_capability = TwilioCapability('', '')
