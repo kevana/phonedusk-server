@@ -89,8 +89,8 @@ def twilio_route_incoming_call():
         users = filter(lambda user: from_num in [x.phone_number for x in user.phone_numbers], users)
         if len(users) > 0:
             user = users[0]
-            with resp.dial() as d:
-                d.client(user.username)
+            with resp.dial(callerId=user.phone_numbers[0].phone_number) as d:
+                d.number(to_num)
         else:
             resp.reject('User not found')
     elif user.enable_blacklist and len(blacklist_matches) > 0:
