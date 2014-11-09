@@ -145,6 +145,7 @@ def create_whitelist_number():
     data = request.get_json()
     number = data['phone_number']
     WhitelistPhoneNumber.create(user=user, phone_number=number)
+    return Response('', 204)
 
 
 @blueprint.route("/whitelist/enable", methods=['POST'])
@@ -194,6 +195,7 @@ def create_blacklist_number():
     data = request.get_json()
     number = data['phone_number']
     BlacklistPhoneNumber.create(user=user, phone_number=number)
+    return Response('', 204)
 
 
 @blueprint.route("/blacklist/enable", methods=['POST'])
@@ -243,6 +245,7 @@ def create_phone_number():
     data = request.get_json()
     number = data['phone_number']
     UserPhoneNumber.create(user=user, phone_number=number)
+    return Response('', 204)
 
 
 @blueprint.route("/message", methods=['POST'])
