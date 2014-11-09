@@ -8,7 +8,7 @@ from twilio import TwilioRestException
 from twilio.rest import TwilioRestClient
 from twilio.util import TwilioCapability
 
-from phonedusk.user.models import User, WhitelistPhoneNumber, BlacklistPhoneNumber
+from phonedusk.user.models import User, WhitelistPhoneNumber, BlacklistPhoneNumber, UserPhoneNumber
 
 
 blueprint = Blueprint("api", __name__, url_prefix='/api',
@@ -78,11 +78,14 @@ def twilio_route_incoming_call():
         blacklist = user.blacklist_numbers
         whitelist = user.whitelist_numbers
         blacklist_matches = [x for x in blacklist if x.phone_number == from_num]
+        whitelist_matches = [x for x in whitelist if x.phone_number == from_num]
     else:
         user = None
     resp = twilio.twiml.Response()
-    if not user or len(blacklist_matches) > 0:
-        resp.reject()
+    if not user:
+        resp.reject('User not found')
+    if user.enable_blacklist and len(blacklist_matches) > 0:
+        resp.reject('Blacklisted')
     else:
         with resp.dial() as d:
             d.client(user.username)
@@ -210,6 +213,36 @@ def disable_blacklist():
     user.save()
     return Response('', 204)
 
+
+@blueprint.route("/phone_numbers", methods=['GET'])
+@requires_auth
+def get_phone_numbers():
+    user = g.user
+    return jsonify(phone_numbers=[num.phone_number for num in user.phone_numbers])
+
+
+@blueprint.route("/phone_numbers", methods=['DELETE'])
+@requires_auth
+def delete_phone_number():
+    user = g.user
+    data = request.get_json()
+    number = data['phone_number']
+    items = [num for num in user.phone_numbers
+                   if num.phone_number == number]
+    for item in items:
+        item.delete()
+
+    return Response('', 204)
+
+
+@blueprint.route("/phone_numbers", methods=['POST', 'PUT'])
+@requires_auth
+def create_phone_number():
+    # TODO: Register new numbers on Twilio?
+    user = g.user
+    data = request.get_json()
+    number = data['phone_number']
+    UserPhoneNumber.create(user=user, phone_number=number)
 
 
 @blueprint.route("/message", methods=['POST'])
