@@ -137,7 +137,7 @@ def get_whitelist():
 @requires_auth
 def delete_whitelist_number():
     user = g.user
-    data = request.form
+    data = request.args
     number = data['phone_number']
     items = [num for num in user.whitelist_numbers
                    if num.phone_number == number]
@@ -187,7 +187,7 @@ def get_blacklist():
 @requires_auth
 def delete_blacklist_number():
     user = g.user
-    data = request.form
+    data = request.args
     number = data['phone_number']
     items = [num for num in user.blacklist_numbers
              if num.phone_number == number]
@@ -236,7 +236,7 @@ def get_phone_numbers():
 @requires_auth
 def delete_phone_number():
     user = g.user
-    data = request.form
+    data = request.args
     number = data['phone_number']
     items = [num for num in user.phone_numbers
                    if num.phone_number == number]
