@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from flask import Blueprint, render_template, current_app, request, Response, g
+from flask import Blueprint, render_template, current_app, request, Response, g, jsonify
 from flask.ext.login import login_required
 
 from functools import wraps
@@ -7,7 +7,7 @@ import twilio.twiml
 from twilio.rest import TwilioRestClient
 from twilio.util import TwilioCapability
 
-from phonedusk.user.models import User
+from phonedusk.user.models import User, WhitelistPhoneNumber, BlacklistPhoneNumber
 
 
 blueprint = Blueprint("api", __name__, url_prefix='/api',
@@ -87,7 +87,69 @@ def user_route_outgoing_call():
         )
     return Response(call.__repr__(), 200)
 
-# Edit whitelist, blacklist
+
+# Whitelist functions
+@blueprint.route("/whitelist", methods=['GET'])
+@requires_auth
+def get_whitelist():
+    user = g.user
+    return jsonify(phone_numbers=[num.phone_number for num in user.whitelist_numbers])
+
+
+@blueprint.route("/whitelist", methods=['DELETE'])
+@requires_auth
+def delete_whitelist_number():
+    user = g.user
+    data = request.get_json()
+    number = data['phone_number']
+    items = [num for num in user.whitelist_numbers
+                   if num.phone_number == number]
+    for item in items:
+        item.delete()
+
+    return Response('', 204)
+
+
+@blueprint.route("/whitelist", methods=['POST', 'PUT'])
+@requires_auth
+def create_whitelist_number():
+    user = g.user
+    data = request.get_json()
+    number = data['phone_number']
+    WhitelistPhoneNumber.create(user=user, phone_number=number)
+
+
+# Blacklist functions
+@blueprint.route("/blacklist", methods=['GET'])
+@requires_auth
+def get_blacklist():
+    user = g.user
+    return jsonify(phone_numbers=[num.phone_number for num in user.blacklist_numbers])
+
+
+@blueprint.route("/blacklist", methods=['DELETE'])
+@requires_auth
+def delete_blacklist_number():
+    user = g.user
+    data = request.get_json()
+    number = data['phone_number']
+    items = [num for num in user.blacklist_numbers
+             if num.phone_number == number]
+    for item in items:
+        item.delete()
+
+    return Response('', 204)
+
+
+@blueprint.route("/blacklist", methods=['POST', 'PUT'])
+@requires_auth
+def create_blacklist_number():
+    user = g.user
+    data = request.get_json()
+    number = data['phone_number']
+    BlacklistPhoneNumber.create(user=user, phone_number=number)
+
+
 # Turn them on and off
 
 @blueprint.route("/message", methods=['POST'])

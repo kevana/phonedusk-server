@@ -70,14 +70,26 @@ class UserPhoneNumber(SurrogatePK, Model):
     user_id = Column(db.Integer, db.ForeignKey('users.id'))
     phone_number = Column(db.String(20), nullable=False)
 
+    def __init__(self, user, phone_number, **kwargs):
+        self.user_id = user.id
+        self.phone_number = phone_number
+
 
 class BlacklistPhoneNumber(SurrogatePK, Model):
     __tablename__ = 'blacklist_phone_number'
     user_id = Column(db.Integer, db.ForeignKey('users.id'))
     phone_number = Column(db.String(20), nullable=False)
 
+    def __init__(self, user, phone_number, **kwargs):
+        self.user_id = user.id
+        self.phone_number = phone_number
+
 
 class WhitelistPhoneNumber(SurrogatePK, Model):
     __tablename__ = 'whitelist_phone_number'
     user_id = Column(db.Integer, db.ForeignKey('users.id'))
     phone_number = Column(db.String(20), nullable=False)
+
+    def __init__(self, user, phone_number, **kwargs):
+        self.user_id = user.id
+        self.phone_number = phone_number
