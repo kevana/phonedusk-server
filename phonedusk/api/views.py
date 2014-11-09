@@ -70,7 +70,7 @@ def twilio_route_incoming_call():
     to_num = request.form['To']
     from_num = request.form['From']
 
-    #TODO: Fix this with SQLAlchemy
+    # TODO: Fix this with SQLAlchemy
     users = User.query.all()
     users = filter(lambda user: to_num in [x.phone_number for x in user.phone_numbers], users)
     if len(users) > 0:
@@ -83,8 +83,17 @@ def twilio_route_incoming_call():
         user = None
     resp = twilio.twiml.Response()
     if not user:
-        resp.reject('User not found')
-    if user.enable_blacklist and len(blacklist_matches) > 0:
+        # User not found by To number, check to see if this is an outgoing call
+        # TODO: Refactor spaghetti logic
+        users = User.query.all()
+        users = filter(lambda user: from_num in [x.phone_number for x in user.phone_numbers], users)
+        if len(users) > 0:
+            user = users[0]
+            with resp.dial() as d:
+                d.client(user.username)
+        else:
+            resp.reject('User not found')
+    elif user.enable_blacklist and len(blacklist_matches) > 0:
         resp.reject('Blacklisted')
     else:
         with resp.dial() as d:
