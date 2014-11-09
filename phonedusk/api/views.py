@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
-from flask import Blueprint, render_template, current_app, request, Response
+from flask import Blueprint, render_template, current_app, request, Response, g
 from flask.ext.login import login_required
 
 from functools import wraps
 import twilio.twiml
+from twilio.rest import TwilioRestClient
 from twilio.util import TwilioCapability
 
 from phonedusk.user.models import User
@@ -17,6 +18,7 @@ def check_api_auth(username, password):
     user = User.query.filter_by(username=username).first()
     if not (user and user.check_password(password) and user.active):
         return False
+    g.user = user
     return True
 
 
@@ -42,8 +44,7 @@ def returns_xml(f):
 @blueprint.route("/capability_token", methods=['GET'])
 @requires_auth
 def get_capability():
-    auth = request.authorization
-    user = User.query.filter_by(username=auth.username).first()
+    user = g.user
     capability = TwilioCapability(current_app.config['TWILIO_ACCOUNT_SID'],
                                          current_app.config['TWILIO_AUTH_TOKEN'])
     capability.allow_client_incoming(user.username)
@@ -55,10 +56,15 @@ def get_capability():
 @returns_xml
 def twilio_route_incoming_call():
     # Called by twilio at start of incoming voice call
-    # TODO: Use the 'To' post param to tie this to a user, create conference, add both parties to it.
+    to_num = request.form['To']
+    user = User.query.filter(User.phone_numbers.contains(to_num)).first()
+
     resp = twilio.twiml.Response()
-    with resp.dial() as d:
-        d.client('tommy')
+    if not user:
+        resp.reject()
+    else:
+        with resp.dial() as d:
+            d.client('tommy')
     return str(resp)
 
 
@@ -72,16 +78,14 @@ def user_route_outgoing_call():
 
     client = TwilioRestClient(current_app.config['TWILIO_ACCOUNT_SID'],
                               current_app.config['TWILIO_AUTH_TOKEN'])
+    print(to_num, from_num)
     call = client.calls.create(
         to=to_num,
         from_=from_num,
-        application_sid=current_app.config['TWILIO_ACCOUNT_SID'],
+        url="https://phonedusk.herokuapp.com/api/call",
         method="POST",
-        fallback_method="GET",
-        status_callback_method="GET",
-        record="false"
-    )
-    return Response(call.length, 200)
+        )
+    return Response(call.__repr__(), 200)
 
 # Edit whitelist, blacklist
 # Turn them on and off

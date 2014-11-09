@@ -26,6 +26,7 @@ class Role(SurrogatePK, Model):
     def __repr__(self):
         return '<Role({name})>'.format(name=self.name)
 
+
 class User(UserMixin, SurrogatePK, Model):
 
     __tablename__ = 'users'
@@ -38,6 +39,10 @@ class User(UserMixin, SurrogatePK, Model):
     last_name = Column(db.String(30), nullable=True)
     active = Column(db.Boolean(), default=False)
     is_admin = Column(db.Boolean(), default=False)
+
+    phone_numbers = relationship("UserPhoneNumber", backref='user')
+    blacklist_numbers = relationship("BlacklistPhoneNumber", backref='user')
+    whitelist_numbers = relationship("WhitelistPhoneNumber", backref='user')
 
     def __init__(self, username, email, password=None, **kwargs):
         db.Model.__init__(self, username=username, email=email, **kwargs)
@@ -58,3 +63,21 @@ class User(UserMixin, SurrogatePK, Model):
 
     def __repr__(self):
         return '<User({username!r})>'.format(username=self.username)
+
+
+class UserPhoneNumber(SurrogatePK, Model):
+    __tablename__ = 'user_phone_number'
+    user_id = Column(db.Integer, db.ForeignKey('users.id'))
+    phone_number = Column(db.String(20), nullable=False)
+
+
+class BlacklistPhoneNumber(SurrogatePK, Model):
+    __tablename__ = 'blacklist_phone_number'
+    user_id = Column(db.Integer, db.ForeignKey('users.id'))
+    phone_number = Column(db.String(20), nullable=False)
+
+
+class WhitelistPhoneNumber(SurrogatePK, Model):
+    __tablename__ = 'whitelist_phone_number'
+    user_id = Column(db.Integer, db.ForeignKey('users.id'))
+    phone_number = Column(db.String(20), nullable=False)
